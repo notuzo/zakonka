@@ -1,0 +1,6 @@
+PyQt5==5.15.11
+PyQtWebEngine==5.15.7
+pymorphy3==2.0.6
+pymorphy3-dicts-ru
+requests
+pyinstaller>=6.0

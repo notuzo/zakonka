@@ -1,0 +1,19 @@
+# secrets
+.env
+.env.*
+
+# build artifacts
+dist/
+build/
+installer/
+__pycache__/
+*.pyc
+
+# generated data (corpus + local index, not published)
+corpus/
+index.json
+lemmas.json
+_scratch/
+
+# misc
+overlay_test.png

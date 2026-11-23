@@ -1,0 +1,167 @@
+ВСЕГО: 158 | с ценой: 76 | без цены: 82
+ЦЕНЫ: $ за 1M токенов (prompt / completion), сортировка по prompt
+
+  #  модель                                            prompt     compl     ctx  модальность
+----------------------------------------------------------------------------------------------------
+  1. deepseek/deepseek-v4-flash-0731                 0.005625  0.005625      1M  text
+  2. deepseek/deepseek-v4.1-flash                    0.005625  0.005625      1M  image+text
+  3. openai/gpt-6-luna                                0.00864    0.0324    786k  image+text
+  4. deepseek/deepseek-v4.1-flash-1017                 0.0108  0.043215      1M  image+text
+  5. deepseek/deepseek-v4-flash-vision-exp            0.01125     0.045      1M  text
+  6. deepseek/deepseek-v4-pro-0813                   0.012829  0.012829      1M  text
+  7. z-ai/glm-5.2                                      0.0135   0.04725      1M  text
+  8. openai/gpt-5.6-luna                               0.0135     0.081    372k  image+text
+  9. z-ai/glm-5.3-flash                              0.016875  0.016875      1M  image+text
+ 10. deepseek/deepseek-v4-flash                         0.018     0.054      1M  image+text
+ 11. minimax/minimax-m3.1-flash                      0.019692  0.078768      1M  text
+ 12. tencent/hy3                                     0.020363  0.084362    256k  text
+ 13. qwen/qwen3.8-flash                              0.023272  0.068362      1M  text
+ 14. xiaomi/mimo-v2.5                                0.025689  0.051377      1M  text
+ 15. qwen/qwen3.8-max                                   0.027     0.081      1M  image+text
+ 16. z-ai/glm-5.3                                       0.027     0.081      1M  text
+ 17. openai/gpt-6.1-terra                              0.0279    0.1395    1.1M  image+text
+ 18. x-ai/grok-4.5                                   0.028125  0.028125    256k  text
+ 19. x-ai/grok-4.6                                   0.028125  0.028125    256k  text
+ 20. x-ai/grok-4.7                                   0.028125  0.028125    256k  image+text
+ 21. anthropic/claude-haiku-4.5                          0.03      0.15    200k  text
+ 22. openai/gpt-5.6-terra                            0.031323  0.187937    372k  text
+ 23. deepseek/deepseek-v4-pro                          0.0315    0.0945      1M  text
+ 24. moonshotai/kimi-k3                                0.0315    0.1575      1M  image+text
+ 25. tencent/hy4-preview                             0.033592  0.100737      1M  text
+ 26. xiaomi/mimo-v2.6-flash                          0.034722  0.069444      1M  text
+ 27. anthropic/claude-haiku-5.5                        0.0351    0.1755    200k  image+text
+ 28. minimax/minimax-m3                                 0.039     0.156      1M  text
+ 29. typesafe/jev-1.14.0                                 0.04         0     65k  text
+ 30. qwen/qwen3.8-omni-flash                         0.040336  0.126389      1M  image+text
+ 31. z-ai/glm-5.3-prime                                0.0405    0.1215       0  text
+ 32. anthropic/claude-sonnet-5                       0.044747  0.223734    323k  text
+ 33. openai/gpt-6-sol                                0.044747  0.223737    786k  text
+ 34. minimax/minimax-m2.7                              0.0465     0.183    200k  text
+ 35. moonshotai/kimi-k2.7-code                         0.0475       0.2    256k  text
+ 36. google/gemini-3.8-flash                           0.0483    0.2412      1M  image+text
+ 37. z-ai/glm-5.3-flashx                             0.053894  0.182074      1M  image+text
+ 38. z-ai/glm-5-turbo                                 0.05625   0.05625    200k  text
+ 39. openai/gpt-4o-mini                               0.05625     0.225    128k  text
+ 40. openai/gpt-5.4-mini                              0.05873  0.352376    400k  text
+ 41. openai/gpt-6.1-sol                                  0.06       0.3    900k  image+text
+ 42. google/gemini-3.6-flash                         0.060418  0.302086      1M  text
+ 43. google/gemini-3.1-flash-lite                       0.066      0.39      1M  image+text
+ 44. anthropic/claude-sonnet-4.6                     0.067131  0.335655      1M  text
+ 45. openai/gpt-5.6-sol                              0.071594  0.357971    786k  text
+ 46. qwen/qwen3.7-plus                               0.072605  0.290418       0  image+text
+ 47. google/gemini-3.7-flash                         0.073844  0.369219      1M  text
+ 48. openai/gpt-5.4                                  0.083899  0.503398    1.1M  text
+ 49. anthropic/claude-sonnet-4.5                         0.09      0.45    200k  text
+ 50. xiaomi/mimo-v2.5-pro                              0.1065    0.2115      1M  image+text
+ 51. openai/gpt-5.5                                  0.109628  0.657768    272k  text
+ 52. google/gemini-3.1-pro-preview                    0.11145    0.6687      1M  image+text
+ 53. anthropic/claude-opus-4.6                       0.111866  0.559328    200k  text
+ 54. anthropic/claude-opus-4.7                       0.111866  0.559328      1M  text
+ 55. anthropic/claude-opus-4.8                       0.111866  0.559328    200k  text
+ 56. anthropic/claude-opus-5                         0.111866  0.559328      1M  text
+ 57. moonshotai/kimi-k3.1-pro                          0.1125    0.1125      1M  image+text
+ 58. qwen/qwen3.7-max                                   0.126     0.378      1M  image+text
+ 59. xiaomi/mimo-v2.6-pro                               0.132     0.261      1M  image+text
+ 60. deepseek/deepseek-v4.1-flash-1017-uncensored     0.14625    0.2925      1M  image+text
+ 61. google/gemini-3-flash                               0.15    0.2235      1M  image+text
+ 62. anthropic/claude-opus-4.5                           0.15      0.75    200k  text
+ 63. z-ai/glm-5.1                                      0.2028    0.5676    202k  text
+ 64. anthropic/claude-opus-5.5                       0.205866   1.02933      1M  text
+ 65. google/gemini-3.1-pro                              0.216      1.26      1M  image+text
+ 66. x-ai/grok-4.3                                      0.228     0.456      1M  image+text
+ 67. openai/gpt-6-astra                                   0.3       1.5    786k  image+text
+ 68. google/gemini-4-argon                              0.306      1.53      1M  image+text
+ 69. z-ai/glm-5.3-flash-abliterated                     0.351    1.4625      1M  image+text
+ 70. google/gemini-2.5-pro                             0.3645     0.861      1M  image+text
+ 71. anthropic/claude-sonnet-5.5                        0.384     1.944      1M  image+text
+ 72. z-ai/glm-5.3-abliterated                            1.17   3.89025      1M  image+text
+ 73. moonshotai/kimi-k2.6                              1.2285     5.103    262k  image+text
+ 74. anthropic/claude-fable-5.1                       1.28014   1.28014      1M  image+text
+ 75. anthropic/claude-fable-5                             2.7      13.5      1M  image+text
+ 76. z-ai/glm-5.3-uncensored                            9.375     9.375      1M  image+text
+
+БЕЗ ЦЕНЫ (в основном медиа):
+модель                                                 ctx  модальность
+--------------------------------------------------------------------------------
+alibaba/happyhorse                                       0  text
+alibaba/happyhorse-1.1                                   0  text
+black-forest-labs/flux-2-flex                            0  image+text
+black-forest-labs/flux-2-pro                             0  text
+black-forest-labs/flux-kontext-max                       0  image+text
+black-forest-labs/flux-kontext-pro                       0  text
+bytedance/seedance-1.5-pro                               0  text
+bytedance/seedance-2                                     0  image+text
+bytedance/seedance-2-fast                                0  text
+bytedance/seedance-2-mini                                0  text
+bytedance/seedance-2.5                                   0  image+text
+bytedance/seedream                                       0  text
+bytedance/seedream-4.0                                   0  text
+bytedance/seedream-4.5                                   0  text
+bytedance/seedream-5.0-flash                             0  text
+bytedance/seedream-5.0-lite                              0  text
+bytedance/seedream-5.0-pro                               0  image+text
+bytedance/v1-lite                                        0  text
+bytedance/v1-pro                                         0  text
+bytedance/v1-pro-fast                                    0  text
+google/gemini-2.5-flash-image                            0  image+text
+google/gemini-3-pro-image                                0  image+text
+google/gemini-3.1-flash-image-preview                    0  image+text
+google/gemini-3.1-flash-lite-image                       0  text
+google/gemini-nano-banana-2.1                            0  image+text
+google/gemini-omni-flash-preview                         0  text
+google/imagen-4                                          0  text
+google/imagen-4-fast                                     0  text
+google/imagen-4-ultra                                    0  text
+google/veo-3.1                                           0  image+text
+google/veo-3.1-fast                                      0  text
+google/veo-3.1-lite                                      0  text
+ideogram/character                                       0  text
+ideogram/ideogram-v3                                     0  image+text
+kwaivgi/kling-2.6                                        0  image+text
+kwaivgi/kling-3.0-omni                                   0  text
+kwaivgi/kling-3.0-video                                  0  image+text
+kwaivgi/kling-v2-1-master                                0  text
+kwaivgi/kling-v2-1-pro                                   0  text
+kwaivgi/kling-v2-1-standard                              0  text
+kwaivgi/kling-v2-5-turbo-image-to-video-pro              0  text
+kwaivgi/kling-v2-5-turbo-text-to-video-pro               0  text
+kwaivgi/kling-v3-turbo                                   0  text
+minimax/hailuo-02-image-to-video-pro                     0  text
+minimax/hailuo-02-image-to-video-standard                0  text
+minimax/hailuo-02-text-to-video-pro                      0  text
+minimax/hailuo-02-text-to-video-standard                 0  text
+minimax/hailuo-2-3-image-to-video-pro                    0  text
+minimax/hailuo-2-3-image-to-video-standard               0  text
+minimax/hailuo-3                                         0  text
+openai/gpt-image-1.5                                     0  image+text
+openai/gpt-image-2                                       0  image+text
+openai/gpt-image-2.5                                     0  image+text
+openai/gpt-image-2.5-flare                               0  image+text
+openai/gpt-image-2.5-sunburst                            0  image+text
+pixverse/pixverse-v6                                     0  image+text
+qwen/qwen-image-2.0                                      0  image+text
+qwen/qwen-image-2.1                                      0  text
+qwen/qwen-image-3.0                                      0  image+text
+qwen/qwen-image-3.0-pro                                  0  image+text
+recraft/crisp-upscale                                    0  image+text
+recraft/remove-background                                0  image+text
+runway/aleph                                             0  text
+runway/gen-3                                             0  text
+runway/gen-4                                             0  image+text
+runway/gen-4.5                                           0  image+text
+tongyi-mai/z-image-base                                  0  text
+topaz/image-upscale                                      0  image+text
+wan-ai/wan-2-2-a14b-image-to-video-turbo                 0  text
+wan-ai/wan-2-2-a14b-text-to-video-turbo                  0  text
+wan-ai/wan-2-5                                           0  text
+wan-ai/wan-2-6                                           0  text
+wan-ai/wan-2-6-flash                                     0  text
+wan-ai/wan-2-7                                           0  text
+wan-ai/wan-2-7-image                                     0  text
+wan-ai/wan-2-7-image-pro                                 0  text
+wan-ai/wan-3-0-video                                     0  image+text
+wan-ai/wan-3-0-video-prime                               0  text
+x-ai/grok-imagine-image                                  0  image+text
+x-ai/grok-imagine-image-2-0                              0  image+text
+x-ai/grok-imagine-video                                  0  image+text
+x-ai/grok-imagine-video-1-5-preview                      0  text

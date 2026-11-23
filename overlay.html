@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Законка</title>
+<style>
+  :root {
+    --paper: #f6f2e9;
+    --paper-2: #fffdf8;
+    --ink: #1b1a17;
+    --muted: #7c7161;
+    --line: #ddd5c7;
+    --accent: #8a3b2e;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 13px/1.5 "Segoe UI", "Golos Text", sans-serif;
+    overflow: hidden;
+  }
+  .app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    background: var(--paper);
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 13px 9px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand {
+    font-family: Georgia, "Literata", serif;
+    font-size: 12px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .right { display: flex; align-items: center; gap: 10px; }
+  .status { font-size: 10px; color: var(--muted); letter-spacing: .04em; }
+  .close {
+    border: 0; background: none; color: var(--muted);
+    font-size: 16px; line-height: 1; cursor: pointer; padding: 0 2px;
+  }
+  .close:hover { color: var(--accent); }
+  .bar { display: flex; gap: 6px; padding: 11px 13px 8px; }
+  input {
+    flex: 1; min-width: 0;
+    border: 1px solid #cfc4b3;
+    background: var(--paper-2);
+    color: var(--ink);
+    padding: 9px 10px;
+    font: 14px/1.3 "Segoe UI", "Golos Text", sans-serif;
+    outline: none;
+    border-radius: 0;
+  }
+  input:focus { border-color: var(--ink); }
+  .hit { border-top: 1px solid var(--line); padding: 8px 0; }
+  .hit summary { list-style: none; cursor: pointer; }
+  .hit summary::-webkit-details-marker { display: none; }
+  .hit-title { font-size: 12px; font-weight: 600; color: var(--ink); }
+  .hit-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .hit-head .hit-title { flex: 1; min-width: 0; }
+  .copy {
+    flex: none; border: 0; background: none; padding: 0;
+    color: var(--accent); font-size: 11px; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 2px;
+  }
+  .hit-snippet { font-size: 12px; color: #4c4438; margin-top: 3px; line-height: 1.5; }
+  .article-full {
+    white-space: pre-wrap; overflow-wrap: anywhere;
+    font: 12px/1.55 "Segoe UI", "Golos Text", sans-serif;
+    color: #4c4438; margin-top: 8px; padding-top: 8px;
+    border-top: 1px solid #ece5d8;
+  }
+  mark { background: #f0e2b8; color: inherit; padding: 0 1px; }
+  main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 13px 18px;
+  }
+  .label {
+    font-size: 9px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--muted); margin: 4px 0 7px;
+  }
+  .hint { color: var(--muted); font-size: 12px; line-height: 1.6; }
+  .error { color: var(--accent); }
+  footer {
+    display: flex; justify-content: space-between;
+    padding: 7px 13px;
+    border-top: 1px solid var(--line);
+    font-size: 9px; color: var(--muted); letter-spacing: .04em;
+  }
+  main::-webkit-scrollbar { width: 8px; }
+  main::-webkit-scrollbar-thumb { background: #d8d0c2; }
+</style>
+<script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">Законка</div>
+    <div class="right">
+      <div class="status" id="status">подключаюсь</div>
+      <button class="close" id="close" title="закрыть">×</button>
+    </div>
+  </header>
+  <div class="bar">
+    <input id="q" autofocus autocomplete="off" spellcheck="false" placeholder="слова или статья — например: 20тк, адвокат задержание">
+  </div>
+  <main id="out">
+    <div class="hint">слова в любом порядке и формах — или статья: 20тк. клик — полный текст.</div>
+  </main>
+  <footer><span>ввод — поиск</span><span>Esc — свернуть</span></footer>
+</div>
+<script>
+  const $ = id => document.getElementById(id);
+  let api = null;
+  let typingTimer = null;
+  let finalTimer = null;
+  let finalQuery = '';
+  let currentQuery = '';
+  let lastForms = [];
+  let lastPrefixes = [];
+  let pending = {};
+  let lastKey = '';
+  let hasArticleSignal = false;
+  let lastRealStatus = 'готов';
+  let copyTimer = null;
+  let copyUntil = 0;
+  const HINT = 'слова в любом порядке и формах — или статья: 20тк. клик — полный текст.';
+
+  try {
+    if (typeof QWebChannel === 'undefined') throw new Error('no QWebChannel');
+    new QWebChannel(qt.webChannelTransport, ch => {
+      const obj = ch.objects.api;
+      if (!obj || !obj.searchReady) {
+        setStatus('нет канала');
+        return;
+      }
+      api = obj;
+      api.searchReady.connect(raw => {
+        let r;
+        try { r = JSON.parse(raw); } catch (e) { return; }
+        renderSearch(r);
+      });
+      if (api.articleReady) {
+        hasArticleSignal = true;
+        api.articleReady.connect(raw => {
+          let r;
+          try { r = JSON.parse(raw); } catch (e) { return; }
+          const p = pending[r.idx];
+          if (!p) return;
+          delete pending[r.idx];
+          if (p.q !== currentQuery) {
+            p.el.dataset.loaded = '';
+            p.el.textContent = '';
+            return;
+          }
+          p.el.innerHTML = r.error
+            ? '<span class="error">' + escapeHtml(r.error) + '</span>'
+            : (r.text ? highlight(r.text, lastForms, lastPrefixes) : '<span class="hint">текст пуст</span>');
+          if (r.error) p.el.dataset.loaded = '';
+        });
+      }
+      if (api.copyReady) {
+        api.copyReady.connect(raw => {
+          let r;
+          try { r = JSON.parse(raw); } catch (e) { r = {ok: false}; }
+          if (r.ok) {
+            copyUntil = Date.now() + 1200;
+            if (copyTimer) clearTimeout(copyTimer);
+            setStatus('скопировано');
+            copyTimer = setTimeout(() => {
+              copyUntil = 0;
+              setStatus(lastRealStatus);
+            }, 1200);
+          } else {
+            setStatus('не скопировалось');
+          }
+        });
+      }
+      setStatus('готов');
+      $('q').focus();
+    });
+  } catch (e) {
+    setStatus('нет канала');
+  }
+  setTimeout(() => { if (!api) setStatus('нет канала'); }, 3000);
+
+  function setStatus(t) {
+    if (t !== 'скопировано' && t !== 'не скопировалось') lastRealStatus = t;
+    if (Date.now() < copyUntil && t !== 'скопировано' && t !== 'не скопировалось') return;
+    $('status').textContent = t;
+  }
+
+  function restoreFocus() {
+    if (!document.activeElement || document.activeElement === document.body) $('q').focus();
+  }
+
+  function el(tag, cls, text) {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  function escRe(s) {
+    return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function flexRe(s) {
+    return escRe(s).replace(/е/g, '[её]');
+  }
+
+  function highlight(text, forms, prefixes) {
+    const parts = [];
+    (prefixes || []).filter(Boolean).forEach(p => parts.push(flexRe(p) + '[а-яё]*'));
+    (forms || []).filter(Boolean).forEach(f => parts.push(flexRe(f)));
+    if (!parts.length) return escapeHtml(text);
+    parts.sort((a, b) => b.length - a.length);
+    const re = new RegExp('(^|[^а-яё0-9a-z])(' + parts.join('|') + ')(?![а-яё0-9a-z])', 'gi');
+    return escapeHtml(text).replace(re, '$1<mark>$2</mark>');
+  }
+
+  function requestSearch(q, typing) {
+    if (!api) { setStatus('нет канала'); return; }
+    if (!typing) finalQuery = q;
+    setStatus(typing ? 'ищу…' : 'ищу точно…');
+    api.search(q, !!typing);
+  }
+
+  function countText(r) {
+    const total = r.total || 0;
+    const items = r.items || [];
+    const shown = items.length < total ? ' · показано ' + items.length : '';
+    return 'найдено ' + total + shown + ' · «' + r.query + '»';
+  }
+
+  function hitNode(it, withSnippet) {
+    const d = document.createElement('details');
+    d.className = 'hit';
+    const s = document.createElement('summary');
+    const head = el('div', 'hit-head');
+    const num = it.article === '0' ? '' : ' ст. ' + it.article;
+    head.appendChild(el('div', 'hit-title', it.doc + num + (it.title ? ' — ' + it.title : '')));
+    const cp = el('button', 'copy', 'копировать');
+    cp.onclick = ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (api) api.copy_article(it.idx);
+    };
+    head.appendChild(cp);
+    s.appendChild(head);
+    if (withSnippet !== false) {
+      const sn = el('div', 'hit-snippet');
+      sn.innerHTML = highlight(it.snippet, lastForms, lastPrefixes);
+      s.appendChild(sn);
+    }
+    d.appendChild(s);
+
+    const full = el('div', 'article-full');
+    d.addEventListener('toggle', () => {
+      if (!d.open || full.dataset.loaded) return;
+      if (!hasArticleSignal) {
+        full.textContent = 'полный текст недоступен';
+        return;
+      }
+      full.dataset.loaded = '1';
+      full.textContent = '…';
+      pending[it.idx] = {el: full, q: currentQuery};
+      api.article(it.idx);
+    });
+    d.appendChild(full);
+    return d;
+  }
+
+  function renderBrowse(r) {
+    const out = $('out');
+    const items = r.items || [];
+    const key = r.query + '|b|' + r.doc + '|' + items.map(i => i.idx).join(',');
+    if (key === lastKey) {
+      setStatus(r.doc + ' · ' + r.total);
+      return;
+    }
+    lastKey = key;
+    lastForms = [];
+    lastPrefixes = [];
+    pending = {};
+    out.innerHTML = '';
+    out.scrollTop = 0;
+
+    out.appendChild(el('div', 'label', r.doc + ' · статей: ' + r.total));
+    if (!items.length) {
+      out.appendChild(el('div', 'hint', 'в этом законе ничего не нашлось.'));
+      setStatus('пусто');
+      restoreFocus();
+      return;
+    }
+    items.forEach(it => out.appendChild(hitNode(it)));
+    setStatus(r.doc + ' · ' + r.total);
+    restoreFocus();
+  }
+
+  function renderDirect(r) {
+    const out = $('out');
+    const items = r.items || [];
+    const key = r.query + '|d|' + r.doc + '|' + r.article_num + '|' + (r.missing ? 'm' : 'e') + '|' + items.map(i => i.idx).join(',');
+    if (key === lastKey) {
+      setStatus(r.missing ? 'нет статьи' : r.doc + ' ст. ' + r.article_num);
+      return;
+    }
+    lastKey = key;
+    lastForms = [];
+    lastPrefixes = [];
+    pending = {};
+    out.innerHTML = '';
+    out.scrollTop = 0;
+
+    if (r.missing) {
+      out.appendChild(el('div', 'label', 'в ' + r.doc + ' нет статьи ' + r.article_num + (items.length ? ' — ближайшие' : '')));
+      if (!items.length) {
+        out.appendChild(el('div', 'hint', 'попробуй другой номер или слова из статьи.'));
+        setStatus('нет статьи');
+        restoreFocus();
+        return;
+      }
+      items.forEach(it => out.appendChild(hitNode(it)));
+      setStatus('нет статьи');
+      restoreFocus();
+      return;
+    }
+
+    const it = items[0];
+    const isDoc = r.article_num === '0';
+    out.appendChild(el('div', 'label', r.doc + (isDoc ? '' : ' · статья ' + r.article_num) + ' · «' + r.query + '»'));
+    const d = hitNode(it, false);
+    out.appendChild(d);
+    d.open = true;
+    setStatus(r.doc + (isDoc ? '' : ' ст. ' + r.article_num));
+    restoreFocus();
+  }
+
+  function renderSearch(r) {
+    const q = $('q').value.trim();
+    if (!r || r.query !== q) return;
+    if (r.typing && finalQuery === r.query) return;
+    currentQuery = r.query;
+    if (r.direct) {
+      renderDirect(r);
+      return;
+    }
+    if (r.browse) {
+      renderBrowse(r);
+      return;
+    }
+    lastForms = r.forms || [];
+    lastPrefixes = r.prefixes || [];
+
+    const out = $('out');
+    if (r.error) {
+      lastKey = '';
+      out.innerHTML = '';
+      out.appendChild(el('div', 'hint error', r.error));
+      setStatus('ошибка');
+      restoreFocus();
+      return;
+    }
+    const total = r.total || 0;
+    const items = r.items || [];
+    if (!items.length) {
+      lastKey = '';
+      out.innerHTML = '';
+      out.appendChild(el('div', 'hint', 'ничего не найдено. попробуй короче или другими словами.'));
+      setStatus('0');
+      restoreFocus();
+      return;
+    }
+
+    const key = r.query + '|' + items.map(i => i.idx).join(',');
+    if (key === lastKey) {
+      const c = $('count');
+      if (c) c.textContent = countText(r);
+      setStatus('найдено ' + total);
+      return;
+    }
+    const queryChanged = r.query !== lastKey.split('|')[0];
+    lastKey = key;
+    pending = {};
+
+    out.innerHTML = '';
+    if (queryChanged) out.scrollTop = 0;
+    const label = el('div', 'label', countText(r));
+    label.id = 'count';
+    out.appendChild(label);
+
+    items.forEach(it => out.appendChild(hitNode(it)));
+    setStatus('найдено ' + total);
+    restoreFocus();
+  }
+
+  function schedule() {
+    const q = $('q').value.trim();
+    if (typingTimer) clearTimeout(typingTimer);
+    if (finalTimer) clearTimeout(finalTimer);
+    if (!q) {
+      finalQuery = '';
+      lastKey = '';
+      const out = $('out');
+      out.innerHTML = '';
+      out.appendChild(el('div', 'hint', HINT));
+      setStatus('готов');
+      return;
+    }
+    typingTimer = setTimeout(() => requestSearch(q, true), 110);
+    if (q.length > 1) finalTimer = setTimeout(() => requestSearch(q, false), 620);
+  }
+
+  $('q').addEventListener('input', schedule);
+  $('q').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (typingTimer) clearTimeout(typingTimer);
+      if (finalTimer) clearTimeout(finalTimer);
+      const q = $('q').value.trim();
+      if (q) requestSearch(q, q.length === 1);
+    }
+    if (e.key === 'ArrowDown') {
+      const first = document.querySelector('#out .hit summary');
+      if (first) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  });
+
+  $('out').addEventListener('keydown', e => {
+    const s = e.target.closest('summary');
+    if (!s || e.target !== s) return;
+    const all = Array.from(document.querySelectorAll('#out .hit summary'));
+    const i = all.indexOf(s);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      (all[i + 1] || all[0]).focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (i <= 0) $('q').focus();
+      else all[i - 1].focus();
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      s.click();
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const open = document.querySelectorAll('#out .hit[open]');
+    if (open.length) {
+      open.forEach(d => { d.open = false; });
+      e.preventDefault();
+      return;
+    }
+    if (api) api.minimize();
+  });
+  $('close').onclick = () => { if (api) api.close(); };
+</script>
+</body>
+</html>
